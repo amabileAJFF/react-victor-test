@@ -3,7 +3,7 @@ import AddCourierPage from './pages/AddCourierPage';
 
 const App: FC = () => {
   return (
-    <div className="App">
+    <div className="App container-fluid m-0 p-0 vw-100 vh-100">
       <AddCourierPage />
     </div>
   );
