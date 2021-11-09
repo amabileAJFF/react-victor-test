@@ -1,21 +1,23 @@
-import { useEffect } from 'react';
-import * as Yup from 'yup';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
+
 import TablePackages from '../components/TablePackages';
+
 import { ICourier } from '../models/CourierModel';
 import { IPackages } from '../models/PackageModel';
 
-// const courierSchema = Yup.object().shape({
-//   price_weight: Yup.number().required('price weight is required'),
-//   packages: Yup.array().of(
-//     Yup.object().shape({
-//       description: Yup.string().required('description is required'),
-//       length: Yup.number().required('length is required'),
-//       width: Yup.number().required('width is required'),
-//       height: Yup.number().required('height is required')
-//     })
-//   )
-// });
+const courierSchema = Yup.object().shape({
+  priceWeight: Yup.number().required('price weight is required'),
+  packages: Yup.array().of(
+    Yup.object().shape({
+      description: Yup.string().required('Description cannot be empty.'),
+      length: Yup.number().integer().moreThan(0).label('Length'),
+      width: Yup.number().integer().moreThan(0).label('Width'),
+      weight: Yup.number().moreThan(0).label('Weight'),
+      height: Yup.number().integer().moreThan(0).label('Height')
+    })
+  )
+});
 
 const initialPackages: IPackages[] = [
   {
@@ -45,21 +47,18 @@ const initialValues: ICourier = {
 };
 
 const AddCourierPage = () => {
-  // useEffect(() => {
-  //     console.log('render main')
-  // }, [])
-
   return (
     <div className="container">
       <Formik
+        component={(props) => <TablePackages {...props} />}
         initialValues={initialValues}
         onSubmit={(values, actions) => {
-          console.log(values);
-          console.log(actions);
-
-          console.log('Trying to submit...');
+          // This method is only run when the form is valid.
+          // Call API method with the params of `values`.
+          // Then ...
+          // Other logic...
         }}
-        component={(props) => <TablePackages {...props} />}
+        validationSchema={courierSchema}
       />
     </div>
   );

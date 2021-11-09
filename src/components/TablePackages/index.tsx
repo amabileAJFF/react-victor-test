@@ -1,13 +1,11 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 
-import clsx from 'clsx';
-import { ErrorMessage, Field, FormikErrors, FormikProps } from 'formik';
+import { FormikErrors, FormikProps, FormikTouched } from 'formik';
 
 import { ICourier } from '../../models/CourierModel';
-import { IPackages } from '../../models/PackageModel';
 
-import { TrashIcon } from '../../App.assets';
 import TableItemComponent from '../TableItem';
+import { IPackages } from '../../models/PackageModel';
 
 interface Props extends FormikProps<ICourier> {}
 
@@ -18,55 +16,27 @@ const TablePackages: FC<Props> = ({
   handleSubmit,
   setValues
 }) => {
-  // useEffect(() => {
-  //     console.log('render table')
+  const addEmptyPackage = () => {
+    const newPackage = {
+      description: '',
+      height: 0,
+      width: 0,
+      length: 0,
+      weight: 0,
+      volumetricWeight: 0
+    };
 
-  //     const { total_volumetric, total_weight } = calculateTotal();
-
-  //     formik.setValues({
-  //         ...formik.values,
-  //         total_volumetric: total_volumetric,
-  //         total_weight: total_weight
-  //     });
-
-  // }, [formik.values.packages, formik.values.price_weight])
-
-  const handleAddPackage = () => {
-    // const packages = [...formik.values.packages];
-    // packages.push({
-    //   description: 'default desc',
-    //   // scale: '',
-    //   length: 0,
-    //   width: 0,
-    //   height: 0,
-    //   volumenWeight: 0,
-    //   weight: 0
-    // });
-    // formik.setValues({
-    //   ...formik.values,
-    //   packages
-    // });
-  };
-
-  const handleRemovePackage = (index: number) => {
-    // formik.setValues({
-    //   ...formik.values,
-    //   packages: formik.values.packages.filter((item, i) => index !== i)
-    // });
-  };
-
-  const calculateTotal = () => {
-    // var total_volumetric = 0;
-    // var total_weight = 0;
-    // formik.values.packages.map((item, index) => {
-    //   const volumetric: number =
-    //     (item.length * item.width * item.height) / 5000;
-    //   const weight: number = item.weight * formik.values.price_weight;
-    //   formik.values.packages[index].volumenWeight = volumetric;
-    //   total_volumetric += volumetric;
-    //   total_weight += weight;
-    // });
-    // return { total_volumetric, total_weight };
+    setValues({
+      ...values,
+      packages: [
+        ...values.packages,
+        {
+          ...newPackage,
+          volumetricWeight:
+            (newPackage.height * newPackage.width * newPackage.length) / 5000
+        }
+      ]
+    });
   };
 
   const addRandomPackage = () => {
@@ -99,7 +69,15 @@ const TablePackages: FC<Props> = ({
           <span className="h4">Courier Summary</span>
 
           <button
+            type="button"
             className="btn btn-outline-secondary btn-sm mx-5"
+            onClick={addEmptyPackage}>
+            Add empty package
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm"
             onClick={addRandomPackage}>
             Add random package
           </button>
@@ -122,57 +100,198 @@ const TablePackages: FC<Props> = ({
               <tbody>
                 {values.packages &&
                   values.packages.map((pkg, i) => {
-                    console.log('render item');
-
                     // const listError =
                     //   (errors.packages?.length &&
                     //     (errors.packages[index] as FormikErrors<IPackages>)) ||
                     //   {};
 
-                    // const listTouched =
-                    //   (touched.packages?.length && touched.packages[index]) ||
-                    //   {};
+                    let descriptionError = false;
+                    let descriptionTouched = false;
+                    let heightError = false;
+                    let heightTouched = false;
+                    let lengthError = false;
+                    let lengthTouched = false;
+                    let weightError = false;
+                    let weightTouched = false;
+                    let widthError = false;
+                    let widthTouched = false;
 
-                    // const volumetric: number =
-                    //   (item.length * item.width * item.height) / 5000;
+                    const itemTouched: FormikTouched<IPackages>[] | undefined =
+                      touched.packages;
+
+                    const itemErrors: FormikErrors<IPackages>[] | undefined =
+                      errors.packages as FormikErrors<IPackages>[];
+
+                    if (
+                      itemTouched === undefined ||
+                      itemTouched[i] === undefined
+                    ) {
+                      descriptionTouched = false;
+                      heightTouched = false;
+                      weightTouched = false;
+                      widthTouched = false;
+                      lengthTouched = false;
+                    } else {
+                      descriptionTouched = itemTouched[i].description
+                        ? true
+                        : false;
+                      heightTouched = itemTouched[i].height ? true : false;
+                      weightTouched = itemTouched[i].weight ? true : false;
+                      widthTouched = itemTouched[i].width ? true : false;
+                      lengthTouched = itemTouched[i].length ? true : false;
+                    }
+
+                    if (
+                      itemErrors === undefined ||
+                      itemErrors[i] === undefined
+                    ) {
+                      descriptionError = false;
+                      heightError = false;
+                      weightError = false;
+                      widthError = false;
+                      lengthError = false;
+                    } else {
+                      descriptionError = itemErrors[i].description
+                        ? true
+                        : false;
+                      heightError = itemErrors[i].height ? true : false;
+                      weightError = itemErrors[i].weight ? true : false;
+                      widthError = itemErrors[i].width ? true : false;
+                      lengthError = itemErrors[i].length ? true : false;
+                    }
 
                     return (
                       <TableItemComponent
+                        key={`package#${i}`}
                         description={{
                           value: pkg.description,
-                          fieldName: `description#item-${i}`,
-                          hasError: false,
-                          isTouched: false
+                          fieldName: `packages.${i}.description`,
+                          hasError: descriptionError,
+                          isTouched: descriptionTouched
                         }}
+                        onDescriptionChange={(description) =>
+                          setValues({
+                            ...values,
+                            packages: [
+                              ...values.packages.slice(0, i),
+                              { ...values.packages[i], description },
+                              ...values.packages.slice(
+                                i + 1,
+                                values.packages.length
+                              )
+                            ]
+                          })
+                        }
                         height={{
                           value: String(pkg.height),
-                          fieldName: `height#item-${i}`,
-                          hasError: false,
-                          isTouched: false
+                          fieldName: `packages.${i}.height`,
+                          hasError: heightError,
+                          isTouched: heightTouched
                         }}
+                        onHeightChange={(height) =>
+                          setValues({
+                            ...values,
+                            packages: [
+                              ...values.packages.slice(0, i),
+                              {
+                                ...values.packages[i],
+                                height: Number(height),
+                                volumetricWeight:
+                                  (Number(height) *
+                                    values.packages[i].width *
+                                    values.packages[i].length) /
+                                  5000
+                              },
+                              ...values.packages.slice(
+                                i + 1,
+                                values.packages.length
+                              )
+                            ]
+                          })
+                        }
                         width={{
                           value: String(pkg.width),
-                          fieldName: `width#item-${i}`,
-                          hasError: false,
-                          isTouched: false
+                          fieldName: `packages.${i}.width`,
+                          hasError: widthError,
+                          isTouched: widthTouched
                         }}
+                        onWidthChange={(width) =>
+                          setValues({
+                            ...values,
+                            packages: [
+                              ...values.packages.slice(0, i),
+                              {
+                                ...values.packages[i],
+                                width: Number(width),
+                                volumetricWeight:
+                                  (Number(width) *
+                                    values.packages[i].height *
+                                    values.packages[i].length) /
+                                  5000
+                              },
+                              ...values.packages.slice(
+                                i + 1,
+                                values.packages.length
+                              )
+                            ]
+                          })
+                        }
                         length={{
                           value: String(pkg.length),
-                          fieldName: `length#item-${i}`,
-                          hasError: false,
-                          isTouched: false
+                          fieldName: `packages.${i}.length`,
+                          hasError: lengthError,
+                          isTouched: lengthTouched
                         }}
+                        onLengthChange={(length) =>
+                          setValues({
+                            ...values,
+                            packages: [
+                              ...values.packages.slice(0, i),
+                              {
+                                ...values.packages[i],
+                                length: Number(length),
+                                volumetricWeight:
+                                  (Number(length) *
+                                    values.packages[i].width *
+                                    values.packages[i].height) /
+                                  5000
+                              },
+                              ...values.packages.slice(
+                                i + 1,
+                                values.packages.length
+                              )
+                            ]
+                          })
+                        }
                         weight={{
                           value: String(pkg.weight),
-                          fieldName: `weight#item-${i}`,
-                          hasError: false,
-                          isTouched: false
+                          fieldName: `packages.${i}.weight`,
+                          hasError: weightError,
+                          isTouched: weightTouched
                         }}
+                        onWeightChange={(weight) =>
+                          setValues({
+                            ...values,
+                            packages: [
+                              ...values.packages.slice(0, i),
+                              {
+                                ...values.packages[i],
+                                weight: Number(weight)
+                              },
+                              ...values.packages.slice(
+                                i + 1,
+                                values.packages.length
+                              )
+                            ]
+                          })
+                        }
                         volumetricWeight={{
                           value: String(pkg.volumetricWeight),
-                          fieldName: `volumetricWeight#item-${i}`,
+                          fieldName: `packages.${i}.volumetricWeight`,
                           hasError: false,
-                          isTouched: false
+                          isTouched: (touched as Record<string, boolean>)[
+                            `volumetricWeight#item-${i}`
+                          ]
                         }}
                         onDeleteItem={() =>
                           setValues({

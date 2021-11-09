@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { ChangeEvent, FC } from 'react';
 
 import clsx from 'clsx';
 import { ErrorMessage, Field } from 'formik';
@@ -17,6 +17,11 @@ interface Props {
   key?: string;
   length: TableItemField;
   onDeleteItem: () => void;
+  onDescriptionChange: (description: string) => void;
+  onHeightChange: (height: string) => void;
+  onLengthChange: (length: string) => void;
+  onWeightChange: (weight: string) => void;
+  onWidthChange: (width: string) => void;
   volumetricWeight: TableItemField;
   weight: TableItemField;
   width: TableItemField;
@@ -27,6 +32,11 @@ const TableItemComponent: FC<Props> = ({
   height,
   length,
   onDeleteItem,
+  onDescriptionChange,
+  onHeightChange,
+  onLengthChange,
+  onWeightChange,
+  onWidthChange,
   volumetricWeight: volumenWeight,
   weight,
   width
@@ -35,6 +45,7 @@ const TableItemComponent: FC<Props> = ({
     <tr className="border-bottom border-bottom-dashed">
       <td className="pe-4">
         <Field
+          as="input"
           type="text"
           className={clsx(
             'form-control',
@@ -47,11 +58,15 @@ const TableItemComponent: FC<Props> = ({
             }
           )}
           name={description.fieldName}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+            onDescriptionChange(value)
+          }
           value={description.value}
           placeholder="Description"
         />
 
-        <ErrorMessage component="div" name={description.fieldName} />
+        {/* ErrorMEssage is missing a class to style it... */}
+        <ErrorMessage component="small" name={description.fieldName} />
       </td>
 
       <td className="pe-4">
@@ -67,11 +82,14 @@ const TableItemComponent: FC<Props> = ({
             }
           )}
           name={length.fieldName}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+            onLengthChange(value)
+          }
           value={length.value}
           placeholder="0.00"
         />
 
-        <ErrorMessage component="div" name={length.fieldName} />
+        <ErrorMessage component="small" name={length.fieldName} />
       </td>
 
       <td className="pe-4">
@@ -87,11 +105,14 @@ const TableItemComponent: FC<Props> = ({
             }
           )}
           name={width.fieldName}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+            onWidthChange(value)
+          }
           value={width.value}
           placeholder="0.00"
         />
 
-        <ErrorMessage component="div" name={width.fieldName} />
+        <ErrorMessage component="small" name={width.fieldName} />
       </td>
 
       <td className="pe-4">
@@ -107,11 +128,14 @@ const TableItemComponent: FC<Props> = ({
             }
           )}
           name={height.fieldName}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+            onHeightChange(value)
+          }
           value={height.value}
           placeholder="0.00"
         />
 
-        <ErrorMessage component="div" name={height.fieldName} />
+        <ErrorMessage component="small" name={height.fieldName} />
       </td>
 
       <td className="pe-4">
@@ -131,8 +155,6 @@ const TableItemComponent: FC<Props> = ({
           name={volumenWeight.fieldName}
           placeholder="0.00"
         />
-
-        <ErrorMessage component="div" name={volumenWeight.fieldName} />
       </td>
 
       <td className="pe-4">
@@ -147,12 +169,15 @@ const TableItemComponent: FC<Props> = ({
               'is-valid': weight.isTouched && !weight.hasError
             }
           )}
-          name={weight.fieldName}
           value={weight.value}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+            onWeightChange(value)
+          }
           placeholder="0.00"
+          name={weight.fieldName}
         />
 
-        <ErrorMessage component="div" name={weight.fieldName} />
+        <ErrorMessage component="small" name={weight.fieldName} />
       </td>
 
       <td className=" text-end">
