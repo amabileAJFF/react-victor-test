@@ -5,7 +5,7 @@ export interface ICourier {
   // client: '',
   packages: Array<IPackages>;
   total: number;
-  totalVolumetric: number;
-  totalWeight: number;
-  priceWeight: number;
+  volumetricTotal: number;
+  weightTotal: number;
+  weightRate: number;
 }

@@ -7,43 +7,26 @@ import { ICourier } from '../models/CourierModel';
 import { IPackages } from '../models/PackageModel';
 
 const courierSchema = Yup.object().shape({
-  priceWeight: Yup.number().required('price weight is required'),
+  weightRate: Yup.number().moreThan(0).label('Weight rate'),
   packages: Yup.array().of(
     Yup.object().shape({
       description: Yup.string().required('Description cannot be empty.'),
-      length: Yup.number().integer().moreThan(0).label('Length'),
-      width: Yup.number().integer().moreThan(0).label('Width'),
+      length: Yup.number().moreThan(0).label('Length'),
+      width: Yup.number().moreThan(0).label('Width'),
       weight: Yup.number().moreThan(0).label('Weight'),
-      height: Yup.number().integer().moreThan(0).label('Height')
+      height: Yup.number().moreThan(0).label('Height')
     })
   )
 });
 
-const initialPackages: IPackages[] = [
-  {
-    description: 'Package 1',
-    height: 5,
-    width: 4,
-    length: 3,
-    weight: 1.75,
-    volumetricWeight: 0.012
-  },
-  {
-    description: 'Package 2',
-    height: 6,
-    width: 6,
-    length: 9,
-    weight: 2.87,
-    volumetricWeight: 0.0648
-  }
-];
+const initialPackages: IPackages[] = [];
 
 const initialValues: ICourier = {
   packages: initialPackages,
-  priceWeight: 0,
+  weightRate: 0,
   total: 0,
-  totalVolumetric: 0,
-  totalWeight: 0
+  volumetricTotal: 0,
+  weightTotal: 0
 };
 
 const AddCourierPage = () => {

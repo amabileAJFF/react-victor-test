@@ -1,11 +1,18 @@
-import { FC } from 'react';
+import { ChangeEvent, FC } from 'react';
 
-import { FormikErrors, FormikProps, FormikTouched } from 'formik';
+import {
+  ErrorMessage,
+  Field,
+  FormikErrors,
+  FormikProps,
+  FormikTouched
+} from 'formik';
 
 import { ICourier } from '../../models/CourierModel';
 
 import TableItemComponent from '../TableItem';
 import { IPackages } from '../../models/PackageModel';
+import clsx from 'clsx';
 
 interface Props extends FormikProps<ICourier> {}
 
@@ -16,6 +23,8 @@ const TablePackages: FC<Props> = ({
   handleSubmit,
   setValues
 }) => {
+  console.log(values);
+
   const addEmptyPackage = () => {
     const newPackage = {
       description: '',
@@ -39,59 +48,23 @@ const TablePackages: FC<Props> = ({
     });
   };
 
-  const addRandomPackage = () => {
-    const newPackage = {
-      description: `Package ${values.packages.length}`,
-      height: Math.floor(Math.random() * 10 + 1),
-      width: Math.floor(Math.random() * 10 + 1),
-      length: Math.floor(Math.random() * 10 + 1),
-      weight: Math.floor(Math.random() * 5 * 100) / 100 + 1,
-      volumetricWeight: 0
-    };
-
-    setValues({
-      ...values,
-      packages: [
-        ...values.packages,
-        {
-          ...newPackage,
-          volumetricWeight:
-            (newPackage.height * newPackage.width * newPackage.length) / 5000
-        }
-      ]
-    });
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="card my-5 p-3">
         <div className="card-header">
           <span className="h4">Courier Summary</span>
-
-          <button
-            type="button"
-            className="btn btn-outline-secondary btn-sm mx-5"
-            onClick={addEmptyPackage}>
-            Add empty package
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-outline-secondary btn-sm"
-            onClick={addRandomPackage}>
-            Add random package
-          </button>
         </div>
+
         <div className="card-body">
-          <div className="row w-100">
-            <table className="table fw-bolder">
+          <div className="row table-responsive">
+            <table className="table table-hover fw-bolder">
               <thead>
                 <tr className="border-bottom fw-bolder">
                   <th style={{ minWidth: '200px' }}>Description</th>
                   <th style={{ minWidth: '100px' }}>Length</th>
                   <th style={{ minWidth: '100px' }}>Width</th>
                   <th style={{ minWidth: '100px' }}>Height</th>
-                  <th style={{ minWidth: '100px' }}>Volumen weight</th>
+                  <th style={{ minWidth: '100px' }}>Volumetric weight</th>
                   <th style={{ minWidth: '100px' }}>Weight</th>
                   <th style={{ minWidth: '50px' }}></th>
                 </tr>
@@ -188,90 +161,181 @@ const TablePackages: FC<Props> = ({
                           hasError: heightError,
                           isTouched: heightTouched
                         }}
-                        onHeightChange={(height) =>
+                        onHeightChange={(height) => {
+                          const newVolumetric =
+                            (Number(height) *
+                              values.packages[i].width *
+                              values.packages[i].length) /
+                            5000;
+
+                          const newVolumetricTotal =
+                            values.packages.reduce<number>(
+                              (prev, curr, index) => {
+                                if (i === index) return prev + newVolumetric;
+
+                                return prev + curr.volumetricWeight;
+                              },
+                              0
+                            );
+
+                          const newWeightTotal =
+                            values.weightRate *
+                            (newVolumetricTotal +
+                              values.packages.reduce<number>(
+                                (prev, curr) => prev + curr.weight,
+                                0
+                              ));
+
+                          const newTotal = newWeightTotal * 1.05;
+
                           setValues({
                             ...values,
+                            volumetricTotal: newVolumetricTotal,
+                            weightTotal: newWeightTotal,
+                            total: newTotal,
                             packages: [
                               ...values.packages.slice(0, i),
                               {
                                 ...values.packages[i],
                                 height: Number(height),
-                                volumetricWeight:
-                                  (Number(height) *
-                                    values.packages[i].width *
-                                    values.packages[i].length) /
-                                  5000
+                                volumetricWeight: newVolumetric
                               },
                               ...values.packages.slice(
                                 i + 1,
                                 values.packages.length
                               )
                             ]
-                          })
-                        }
+                          });
+                        }}
                         width={{
                           value: String(pkg.width),
                           fieldName: `packages.${i}.width`,
                           hasError: widthError,
                           isTouched: widthTouched
                         }}
-                        onWidthChange={(width) =>
+                        onWidthChange={(width) => {
+                          const newVolumetric =
+                            (Number(width) *
+                              values.packages[i].height *
+                              values.packages[i].length) /
+                            5000;
+
+                          const newVolumetricTotal =
+                            values.packages.reduce<number>(
+                              (prev, curr, index) => {
+                                if (i === index) return prev + newVolumetric;
+
+                                return prev + curr.volumetricWeight;
+                              },
+                              0
+                            );
+
+                          const newWeightTotal =
+                            values.weightRate *
+                            (newVolumetricTotal +
+                              values.packages.reduce<number>(
+                                (prev, curr) => prev + curr.weight,
+                                0
+                              ));
+
+                          const newTotal = newWeightTotal * 1.05;
+
                           setValues({
                             ...values,
+                            volumetricTotal: newVolumetricTotal,
+                            weightTotal: newWeightTotal,
+                            total: newTotal,
                             packages: [
                               ...values.packages.slice(0, i),
                               {
                                 ...values.packages[i],
                                 width: Number(width),
-                                volumetricWeight:
-                                  (Number(width) *
-                                    values.packages[i].height *
-                                    values.packages[i].length) /
-                                  5000
+                                volumetricWeight: newVolumetric
                               },
                               ...values.packages.slice(
                                 i + 1,
                                 values.packages.length
                               )
                             ]
-                          })
-                        }
+                          });
+                        }}
                         length={{
                           value: String(pkg.length),
                           fieldName: `packages.${i}.length`,
                           hasError: lengthError,
                           isTouched: lengthTouched
                         }}
-                        onLengthChange={(length) =>
+                        onLengthChange={(length) => {
+                          const newVolumetric =
+                            (Number(length) *
+                              values.packages[i].height *
+                              values.packages[i].width) /
+                            5000;
+
+                          const newVolumetricTotal =
+                            values.packages.reduce<number>(
+                              (prev, curr, index) => {
+                                if (i === index) return prev + newVolumetric;
+
+                                return prev + curr.volumetricWeight;
+                              },
+                              0
+                            );
+
+                          const newWeightTotal =
+                            values.weightRate *
+                            (newVolumetricTotal +
+                              values.packages.reduce<number>(
+                                (prev, curr) => prev + curr.weight,
+                                0
+                              ));
+
+                          const newTotal = newWeightTotal * 1.05;
+
                           setValues({
                             ...values,
+                            volumetricTotal: newVolumetricTotal,
+                            weightTotal: newWeightTotal,
+                            total: newTotal,
                             packages: [
                               ...values.packages.slice(0, i),
                               {
                                 ...values.packages[i],
                                 length: Number(length),
-                                volumetricWeight:
-                                  (Number(length) *
-                                    values.packages[i].width *
-                                    values.packages[i].height) /
-                                  5000
+                                volumetricWeight: newVolumetric
                               },
                               ...values.packages.slice(
                                 i + 1,
                                 values.packages.length
                               )
                             ]
-                          })
-                        }
+                          });
+                        }}
                         weight={{
                           value: String(pkg.weight),
                           fieldName: `packages.${i}.weight`,
                           hasError: weightError,
                           isTouched: weightTouched
                         }}
-                        onWeightChange={(weight) =>
+                        onWeightChange={(weight) => {
+                          const newWeightTotal =
+                            values.weightRate *
+                            (values.volumetricTotal +
+                              values.packages.reduce<number>(
+                                (prev, curr, index) => {
+                                  if (index === i) return prev + Number(weight);
+
+                                  return prev + curr.weight;
+                                },
+                                0
+                              ));
+
+                          const newTotal = newWeightTotal * 1.05;
+
                           setValues({
                             ...values,
+                            weightTotal: newWeightTotal,
+                            total: newTotal,
                             packages: [
                               ...values.packages.slice(0, i),
                               {
@@ -283,8 +347,8 @@ const TablePackages: FC<Props> = ({
                                 values.packages.length
                               )
                             ]
-                          })
-                        }
+                          });
+                        }}
                         volumetricWeight={{
                           value: String(pkg.volumetricWeight),
                           fieldName: `packages.${i}.volumetricWeight`,
@@ -309,62 +373,109 @@ const TablePackages: FC<Props> = ({
                     );
                   })}
               </tbody>
+
+              <tfoot>
+                <tr className="borderless">
+                  <th colSpan={7}>
+                    <div className="d-flex flex-row justify-content-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-success"
+                        onClick={() => addEmptyPackage()}>
+                        Add item
+                      </button>
+                    </div>
+                  </th>
+                </tr>
+              </tfoot>
             </table>
           </div>
 
-          <div className="row w-100">
-            {/* <tr className="text-gray-700">
-            <th colSpan={4}>
-              <button
-                type="button"
-                className="btn btn-sm btn-success py-1"
-                onClick={() => handleAddPackage()}>
-                Add item
-              </button>
-            </th>
+          <div className="row justify-content-end">
+            <div className="col col-6 table-responsive">
+              <table className="table table-light">
+                <tbody>
+                  <tr>
+                    <td>Weight total</td>
+                    <td>
+                      {values.packages.reduce<number>(
+                        (prev, curr) => prev + curr.weight,
+                        0
+                      )}
+                    </td>
+                    <td>Kg</td>
+                  </tr>
+                  <tr>
+                    <td>Volumetric weight total</td>
+                    <td>{values.volumetricTotal}</td>
+                    <td>Kg</td>
+                  </tr>
+                  <tr>
+                    <td>Weight rate</td>
+                    <td>
+                      <Field
+                        as="input"
+                        type="number"
+                        step="0.01"
+                        className={clsx(
+                          'form-control',
 
-            <th className="fs-5 ">Total volumetric</th>
+                          {
+                            'is-invalid':
+                              touched.weightRate && errors.weightRate
+                          },
+                          {
+                            'is-valid': touched.weightRate && !errors.weightRate
+                          }
+                        )}
+                        name={`weightRate`}
+                        onChange={({
+                          target: { value }
+                        }: ChangeEvent<HTMLInputElement>) => {
+                          const newWeightTotal =
+                            (values.packages.reduce<number>(
+                              (prev, curr) => prev + curr.weight,
+                              0
+                            ) +
+                              values.volumetricTotal) *
+                            Number(value);
 
-            <th className=" fs-5 text-nowrap">
-              $ <span>{values.total_volumetric}</span>
-            </th>
-          </tr>
+                          const newTotal = newWeightTotal * 1.05;
 
-          <tr className="text-gray-700">
-            <th>Price weight :</th>
+                          setValues({
+                            ...values,
+                            weightRate: Number(value),
+                            weightTotal: newWeightTotal,
+                            total: newTotal
+                          });
+                        }}
+                        value={String(values.weightRate)}
+                        placeholder="0.00"
+                      />
 
-            <th colSpan={3}>
-              <div className="col-md-3">
-                <input
-                  type="number"
-                  {...formik.getFieldProps('price_weight')}
-                  className={clsx(
-                    'form-control',
-                    {
-                      'is-invalid':
-                        formik.touched.price_weight &&
-                        formik.errors.price_weight
-                    },
-                    {
-                      'is-valid':
-                        formik.touched.price_weight &&
-                        !formik.errors.price_weight
-                    }
-                  )}
-                  name={`price_weight`}
-                  placeholder="0.00"
-                />
-
-                <ErrorMessage component="div" name={'price_weight'} />
-              </div>
-            </th>
-
-            <th className="fs-5 ">Total weight</th>
-
-            <th className=" fs-5 text-nowrap">
-              $ <span>{formik.values.total_weight}</span>
-            </th>
-          </tr> */}
+                      <ErrorMessage name="weightRate" />
+                    </td>
+                    <td>USD/Kg</td>
+                  </tr>
+                  <tr>
+                    <td>Weight total</td>
+                    <td>{values.weightTotal}</td>
+                    <td>USD</td>
+                  </tr>
+                  <tr>
+                    <td>Tax</td>
+                    <td colSpan={2}>5%</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td>Total</td>
+                    <td>{values.total}</td>
+                    <td>USD</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
 

@@ -65,13 +65,14 @@ const TableItemComponent: FC<Props> = ({
           placeholder="Description"
         />
 
-        {/* ErrorMEssage is missing a class to style it... */}
+        {/* ErrorMEssages are missing a class to style it... */}
         <ErrorMessage component="small" name={description.fieldName} />
       </td>
 
       <td className="pe-4">
         <Field
           type="number"
+          step="0.01"
           className={clsx(
             'form-control',
             {
@@ -86,7 +87,6 @@ const TableItemComponent: FC<Props> = ({
             onLengthChange(value)
           }
           value={length.value}
-          placeholder="0.00"
         />
 
         <ErrorMessage component="small" name={length.fieldName} />
@@ -95,6 +95,7 @@ const TableItemComponent: FC<Props> = ({
       <td className="pe-4">
         <Field
           type="number"
+          step="0.01"
           className={clsx(
             'form-control',
             {
@@ -109,7 +110,6 @@ const TableItemComponent: FC<Props> = ({
             onWidthChange(value)
           }
           value={width.value}
-          placeholder="0.00"
         />
 
         <ErrorMessage component="small" name={width.fieldName} />
@@ -118,6 +118,7 @@ const TableItemComponent: FC<Props> = ({
       <td className="pe-4">
         <Field
           type="number"
+          step="0.01"
           className={clsx(
             'form-control',
             {
@@ -132,7 +133,6 @@ const TableItemComponent: FC<Props> = ({
             onHeightChange(value)
           }
           value={height.value}
-          placeholder="0.00"
         />
 
         <ErrorMessage component="small" name={height.fieldName} />
@@ -153,13 +153,13 @@ const TableItemComponent: FC<Props> = ({
           )}
           value={volumenWeight.value}
           name={volumenWeight.fieldName}
-          placeholder="0.00"
         />
       </td>
 
       <td className="pe-4">
         <Field
           type="number"
+          step="0.01"
           className={clsx(
             'form-control',
             {
@@ -173,7 +173,6 @@ const TableItemComponent: FC<Props> = ({
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
             onWeightChange(value)
           }
-          placeholder="0.00"
           name={weight.fieldName}
         />
 
